@@ -1762,6 +1762,22 @@ class MaskImageWidget(qt.QWidget):
         if ownsignal is None:
             ownsignal = True
         emitsignal = False
+
+
+        if self.__selectionMask is not None and ddict['event']=="mouseClicked" and ddict['button']=="middle" :
+            x,y = int(ddict["x"]), int(ddict["y"])
+            id_target = self.__selectionMask[y,x]
+            if id_target and id_target!= self._nRoi:
+                mask_target =  (self.__selectionMask == id_target  )
+                mask_swap   =  (self.__selectionMask== self._nRoi)
+                self.__selectionMask [mask_target] = self._nRoi
+                self.__selectionMask [mask_swap] = id_target
+                emitsignal = True
+                if emitsignal:
+                    self.plotImage(update = False)
+                    self._emitMaskChangedSignal()
+                return
+
         if self.__imageData is None:
             return
         if ddict['event'] == "drawingFinished":
