@@ -48,7 +48,11 @@ from .opencl import ocl, pyopencl
 from .utils import calc_size, kernel_size, sizeof, matching_correction
 import logging
 logger = logging.getLogger("sift.alignment")
-from pyopencl import mem_flags as MF
+try:
+    from pyopencl import mem_flags as MF
+except:
+  MF=None
+
 from . import MatchPlan, SiftPlan
 
 try:

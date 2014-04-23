@@ -47,7 +47,10 @@ from .param import par
 from .opencl import ocl, pyopencl
 from .utils import calc_size, kernel_size, sizeof
 logger = logging.getLogger("sift.match")
-from pyopencl import mem_flags as MF
+try:
+    from pyopencl import mem_flags as MF
+except:
+    MF=None
 
 class MatchPlan(object):
     """

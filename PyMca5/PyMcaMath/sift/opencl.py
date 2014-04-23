@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf8 -*-
+#-*- coding: utf8-*-
 #
 #    Project: Sift implementation in Python + OpenCL
 #             https://github.com/kif/sift_pyocl
@@ -47,7 +47,7 @@ logger = logging.getLogger("sift.opencl")
 try:
     import pyopencl, pyopencl.array
 #    from pyFAI.opencl import ocl
-except ImportError:
+except:
     logger.error("Unable to import pyOpenCl. Please install it from: http://pypi.python.org/pypi/pyopencl")
     pyopencl = None
 
