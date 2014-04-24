@@ -1766,8 +1766,6 @@ class MaskImageWidget(qt.QWidget):
             ownsignal = True
         emitsignal = False
 
-        print (ddict)
-
         if self.changeTagOn:
             if self.__selectionMask is not None and ddict['event']=="mouseClicked" and ddict['button']=="middle" :
                 x,y = int(ddict["x"]), int(ddict["y"])
@@ -2121,6 +2119,7 @@ def test():
         container = MaskImageWidget(aspect=True,
                                     profileselection=True,
                                      maxNRois=2)
+        container.changeTagOn = True
         data = numpy.arange(400 * 400).astype(numpy.int32)
         data.shape = 200, 800
         #data = numpy.eye(200)
