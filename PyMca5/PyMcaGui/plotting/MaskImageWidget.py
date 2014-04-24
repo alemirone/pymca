@@ -116,6 +116,7 @@ class MaskImageWidget(qt.QWidget):
         self._xScale = None
         self._yScale = None
 
+
         self.colormap = None
         self.colormapDialog = None
         self.setDefaultColormap(DEFAULT_COLORMAP_INDEX,
@@ -132,6 +133,8 @@ class MaskImageWidget(qt.QWidget):
         self.__aspect = aspect
         self._maxNRois = maxNRois
         self._nRoi = 1
+        self.changeTagOn=False
+
         self._build(standalonesave, profileselection=profileselection, polygon=polygon)
         self._profileSelectionWindow = None
         self._profileScanWindow = scanwindow
@@ -1763,20 +1766,29 @@ class MaskImageWidget(qt.QWidget):
             ownsignal = True
         emitsignal = False
 
+        print (ddict)
 
-        if self.__selectionMask is not None and ddict['event']=="mouseClicked" and ddict['button']=="middle" :
-            x,y = int(ddict["x"]), int(ddict["y"])
-            id_target = self.__selectionMask[y,x]
-            if id_target and id_target!= self._nRoi:
-                mask_target =  (self.__selectionMask == id_target  )
-                mask_swap   =  (self.__selectionMask== self._nRoi)
-                self.__selectionMask [mask_target] = self._nRoi
-                self.__selectionMask [mask_swap] = id_target
-                emitsignal = True
-                if emitsignal:
-                    self.plotImage(update = False)
-                    self._emitMaskChangedSignal()
-                return
+        if self.changeTagOn:
+            if self.__selectionMask is not None and ddict['event']=="mouseClicked" and ddict['button']=="middle" :
+                x,y = int(ddict["x"]), int(ddict["y"])
+
+                y, x = convertToRowAndColumn(x , y,
+                                             self.__imageData.shape,
+                                             xScale=self._xScale,
+                                             yScale=self._yScale,
+                                             safe=True)
+
+                id_target = self.__selectionMask[y,x]
+                if id_target and id_target!= self._nRoi:
+                    mask_target =  (self.__selectionMask == id_target  )
+                    mask_swap   =  (self.__selectionMask== self._nRoi)
+                    self.__selectionMask [mask_target] = self._nRoi
+                    self.__selectionMask [mask_swap] = id_target
+                    emitsignal = True
+                    if emitsignal:
+                        self.plotImage(update = False)
+                        self._emitMaskChangedSignal()
+                    return
 
         if self.__imageData is None:
             return
