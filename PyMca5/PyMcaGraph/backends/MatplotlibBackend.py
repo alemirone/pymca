@@ -657,6 +657,10 @@ class MatplotlibGraph(FigureCanvas):
               'button':button,
               }
         self._callback(ddict)
+
+        if button == "middle":
+            return
+
         # should this be made by Plot1D with the previous call???
         # The problem is Plot1D does not know if one is zooming or drawing
         if not (self.__zooming or self.__drawing or self.__picking):
@@ -764,6 +768,7 @@ class MatplotlibGraph(FigureCanvas):
             return
 
         if self._x0 is None:
+            # this happened when using the middle button
             return
         
         if self.__zooming or \
@@ -2004,16 +2009,19 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
 
     def showGrid(self, flag=True):
         if flag == 1:
-            self.ax.xaxis.set_tick_params(which='major')
-            self.ax.yaxis.set_tick_params(which='major')
+            if hasattr(self.ax.xaxis, "set_tick_params"):
+                self.ax.xaxis.set_tick_params(which='major')
+                self.ax.yaxis.set_tick_params(which='major')
             self.ax.grid(which='major')
         elif flag == 2:
-            self.ax.xaxis.set_tick_params(which='both')
-            self.ax.yaxis.set_tick_params(which='both')
+            if hasattr(self.ax.xaxis, "set_tick_params"):
+                self.ax.xaxis.set_tick_params(which='both')
+                self.ax.yaxis.set_tick_params(which='both')
             self.ax.grid(which='both')
         elif flag:
-            self.ax.xaxis.set_tick_params(which='major')
-            self.ax.yaxis.set_tick_params(which='major')
+            if hasattr(self.ax.xaxis, "set_tick_params"):
+                self.ax.xaxis.set_tick_params(which='major')
+                self.ax.yaxis.set_tick_params(which='major')
             self.ax.grid(True)
         else:
             self.ax.grid(False)
