@@ -1073,14 +1073,16 @@ class Plot(PlotBase.PlotBase):
                 legend = "Unnamed Marker %d" % i
 
         if legend in self._markerList:
-            self.clearMarker(legend)
+            self._plot.clearMarker(legend)
         marker = self._plot.insertMarker(x, y, legend,
                                           label=label,
                                           color=color,
                                           selectable=selectable,
                                           draggable=draggable,
                                           **kw)
-        self._markerList.append(legend)
+
+
+        self._markerList.append(marker)
         self._markerDict[legend] = kw
         self._markerDict[legend]['marker'] = marker
         return marker
@@ -1094,9 +1096,13 @@ class Plot(PlotBase.PlotBase):
 
     def clearMarkers(self):
         self._markerDict = {}
-        self._markerList = []
         self._plot.clearMarkers()
-        self.replot()
+
+        for marker in  self._markerList:
+            self._plot.clearMarker(marker)
+
+        self._markerList = []
+        # self.replot()
 
     def removeMarker(self, marker):
         if marker in self._markerList:

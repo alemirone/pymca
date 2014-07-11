@@ -1358,6 +1358,9 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
                 line2d.remove()
                 del line2d
 
+    def clearMarker(self, marker):
+        marker.remove()
+
     def clearMarkers(self):
         """
         Clear all markers from the plot. Not the curves!!
@@ -1461,7 +1464,7 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
             print("unhandled axis %s" % axis)
 
     def insertMarker(self, x, y, legend, label=None, color='k',
-                      selectable=False, draggable=False,
+                      selectable=False, draggable=False,  searchFeature=False,
                       **kw):
         """
         :param x: Horizontal position of the marker in graph coordenates
@@ -1478,8 +1481,32 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
         :type draggable: boolean, default False
         :return: Handle used by the backend to univocally access the marker
         """
-        print("MatplotlibBackend insertMarker not implemented")
-        return legend
+        
+        bestmatch=None
+        
+
+        if searchFeature:
+            extra_keywords = {"annotatedText":["xytext","textcoords","ha","bbox","fc","alpha","arrowprops"]}
+            bestN=0
+            for choice in extra_keywords.keys():
+                N = len(  set(extra_keywords[choice]) & set(kw.keys()) )
+                if N > bestN:
+                    bestN = N
+                    bestmatch = choice
+
+
+
+        if  bestmatch is None:
+            print("""MatplotlibBackend basic type of insertMarker not implemented yet"""
+                  """( but you can pass keyword args for matplotlib annotate if you wish"""
+                  )
+            return legend
+        elif bestmatch == "annotatedText":
+            res=self.ax.annotate(label, xy = (x, y), **kw)
+ 
+            return res
+        
+
     
     def insertXMarker(self, x, legend, label=None,
                       color='k', selectable=False, draggable=False,
