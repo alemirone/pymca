@@ -986,6 +986,11 @@ class Plot(PlotBase.PlotBase):
     def setGraphYLabel(self, label="Y"):
         self._plot.setGraphYLabel(label)
         
+
+    def displayXY2dataXY( self, x,y ) :
+        return self._plot.displayXY2dataXY(x,y)
+
+
     # Marker handling
     def insertXMarker(self, x, legend=None,
                       label=None,

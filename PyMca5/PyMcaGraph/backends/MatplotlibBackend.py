@@ -1463,6 +1463,14 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
         else:
             print("unhandled axis %s" % axis)
 
+    def displayXY2dataXY( self, x,y ) :
+        transf = self.ax.transData.inverted()
+        Y1,Y2=self.ax.get_ylim()
+        x,y = transf.transform( (x,y ) )
+        return  (x,Y1 + (Y2-y) ) 
+        
+
+
     def insertMarker(self, x, y, legend, label=None, color='k',
                       selectable=False, draggable=False,  searchFeature=False,
                       **kw):
@@ -1481,7 +1489,10 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
         :type draggable: boolean, default False
         :return: Handle used by the backend to univocally access the marker
         """
-        
+        global BLITTING
+        oldblit = BLITTING
+        BLITTING=True
+
         bestmatch=None
         
 
@@ -1500,11 +1511,15 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
             print("""MatplotlibBackend basic type of insertMarker not implemented yet"""
                   """( but you can pass keyword args for matplotlib annotate if you wish"""
                   )
-            return legend
+            res = legend
+
         elif bestmatch == "annotatedText":
             res=self.ax.annotate(label, xy = (x, y), **kw)
+        self.replot()
  
-            return res
+        return res
+
+        BLITTING=oldblit
         
 
     
