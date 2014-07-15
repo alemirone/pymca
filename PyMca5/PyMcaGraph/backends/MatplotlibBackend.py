@@ -1463,7 +1463,7 @@ class MatplotlibBackend(PlotBackend.PlotBackend):
         else:
             print("unhandled axis %s" % axis)
 
-    def displayXY2dataXY( self, x,y ) :
+    def pixel2DataXY( self, x,y ) :
         transf = self.ax.transData.inverted()
         Y1,Y2=self.ax.get_ylim()
         x,y = transf.transform( (x,y ) )

@@ -987,8 +987,8 @@ class Plot(PlotBase.PlotBase):
         self._plot.setGraphYLabel(label)
         
 
-    def displayXY2dataXY( self, x,y ) :
-        return self._plot.displayXY2dataXY(x,y)
+    def pixel2DataXY( self, x,y ) :
+        return self._plot.pixel2DataXY(x,y)
 
 
     # Marker handling
