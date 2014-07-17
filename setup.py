@@ -23,6 +23,7 @@ import platform
 import time
 from distutils.core import Extension, setup, Command
 from distutils.command.install import install as dftinstall
+import string
 try:
     import numpy
 except ImportError:
@@ -42,6 +43,17 @@ global PYMCA_SCRIPTS_DIR
 global USE_SMART_INSTALL_SCRIPTS 
 
 
+
+ffile = open(os.path.join('PyMca5', 'PyMcaGui', 'pymca', 'PyMcaMain.py'), 'r').readlines()
+__dev_version__ =""
+for line in ffile:
+    if line.startswith('__dev_version__'):
+        __dev_version__ = "%s" % line.replace(' ','').split("=")[-1][:-1]
+        __dev_version__ = __dev_version__[1:-1]
+        break
+
+
+
 #package maintainers customization
 # Dear (Debian, RedHat, ...) package makers, please feel free to customize the
 # following paths to the directory containing module's data relative to the
@@ -49,11 +61,14 @@ global USE_SMART_INSTALL_SCRIPTS
 # The sift module implements a patented algorithm. The algorithm can be used
 # for non-commercial research purposes. If you do not want to distribute it
 # with the PyMca sources you just need to delete the PyMca5/PyMcaMath/sift directory.
-PYMCA_DATA_DIR = os.path.join('PyMca5','PyMcaData')
-PYMCA_DOC_DIR = os.path.join('PyMca5','PyMcaData')
+PYMCA_DATA_DIR = os.path.join('PyMca5'+__dev_version__,'PyMcaData')
+PYMCA_DOC_DIR = os.path.join('PyMca5'+__dev_version__,'PyMcaData')
 USE_SMART_INSTALL_SCRIPTS = False
 if "--install-scripts" in sys.argv:
     USE_SMART_INSTALL_SCRIPTS = True
+
+USE_SMART_INSTALL_SCRIPTS = True
+USE_SMART_INSTALL_LIB     = True
 
 SPECFILE_USE_GNU_SOURCE = os.getenv("SPECFILE_USE_GNU_SOURCE")
 if SPECFILE_USE_GNU_SOURCE is None:
@@ -76,7 +91,10 @@ for line in ffile:
         __version__ = __version__[1:-1]
         break
 
+
 print("PyMca X-Ray Fluorescence Toolkit %s\n" % __version__)
+if __dev_version__ !="":
+    print("Development version =  %s\n" % __dev_version__)
 
 # The following is not supported by python-2.3:
 #package_data = {'PyMca': ['attdata/*', 'HTML/*.*', 'HTML/IMAGES/*', 'HTML/PyMCA_files/*']}
@@ -103,6 +121,7 @@ packages = ['PyMca5','PyMca5.PyMcaPlugins', 'PyMca5.tests',
             'PyMca5.PyMcaGui.io.hdf5',
             'PyMca5.PyMcaGui.math',
             'PyMca5.PyMcaGui.math.fitting',]
+
 py_modules = []
 
 # Specify all the required PyMca data
@@ -141,9 +160,9 @@ if os.path.exists(os.path.join("PyMca5", "EPDL97")):
 global SIFT_OPENCL_FILES
 SIFT_OPENCL_FILES = []
 if os.path.exists(os.path.join("PyMca5", "PyMcaMath", "sift")):
-    packages.append('PyMca5.PyMcaMath.sift')
+    packages.append('PyMca5'+'.PyMcaMath.sift')
     SIFT_OPENCL_FILES = glob.glob('PyMca5/PyMcaMath/sift/*.cl')
-    data_files.append((os.path.join('PyMca5', 'PyMcaMath', 'sift'),
+    data_files.append((os.path.join('PyMca5'+__dev_version__, 'PyMcaMath', 'sift'),
                        SIFT_OPENCL_FILES))
     
 LOCAL_OBJECT3D =False
@@ -161,7 +180,7 @@ else:
     script_files = glob.glob('PyMca5/scripts/*')
             
 def build_FastEdf(ext_modules):
-    module  = Extension(name = 'PyMca5.FastEdf',
+    module  = Extension(name = 'PyMca5'+__dev_version__+'.FastEdf',
                         sources = glob.glob('PyMca5/PyMcaIO/edf/*.c'),
                         define_macros = define_macros,
                         include_dirs = [numpy.get_include()])
@@ -185,7 +204,7 @@ def build_specfile(ext_modules):
     specfile_include_dir = os.path.join('PyMca5', 'PyMcaIO', 'specfile', 'include')
     for ffile in srcfiles:
       sources.append(os.path.join(specfile_source_dir, ffile+'.c'))
-    module  = Extension(name = 'PyMca5.PyMcaIO.specfile',
+    module  = Extension(name = 'PyMca5'+__dev_version__+'.PyMcaIO.specfile',
                         sources = sources,
                         define_macros = specfile_define_macros,
                         include_dirs = [specfile_include_dir,
@@ -193,7 +212,7 @@ def build_specfile(ext_modules):
     ext_modules.append(module)
 
 def build_specfit(ext_modules):
-    module  = Extension(name = 'PyMca5.PyMcaMath.fitting.SpecfitFuns',
+    module  = Extension(name = 'PyMca5'+__dev_version__+'.PyMcaMath.fitting.SpecfitFuns',
                         sources = glob.glob('PyMca5/PyMcaMath/fitting/specfit/*.c'),
                         define_macros = define_macros,
                         include_dirs = ['PyMca5/PyMcaMath/fitting/specfit',
@@ -210,7 +229,7 @@ def build_sps(ext_modules):
     else:
         extra_compile_args = []
 
-    module  = Extension(name = 'PyMca5.spslut',
+    module  = Extension(name = 'PyMca5'+__dev_version__+'.spslut',
                          sources = ['PyMca5/PyMcaIO/sps/Src/sps_lut.c',
                                     'PyMca5/PyMcaIO/sps/Src/spslut_py.c'],
                          define_macros = define_macros,
@@ -219,7 +238,7 @@ def build_sps(ext_modules):
                                           numpy.get_include()])
     ext_modules.append(module)
     if (sys.platform != "win32") and (sys.version < '3.0'):
-        module = (Extension(name = 'PyMca5.PyMcaIO.sps',
+        module = (Extension(name = 'PyMca5'+__dev_version__+'.PyMcaIO.sps',
                                             sources = ['PyMca5/PyMcaIO/sps/Src/sps.c',
                                                        'PyMca5/PyMcaIO/sps/Src/sps_py.c'],
                                             define_macros = define_macros,
@@ -229,7 +248,7 @@ def build_sps(ext_modules):
         ext_modules.append(module)
 
 def build_PyMcaIOHelper(ext_modules):
-    module  = Extension(name = 'PyMca5.PyMcaIO.PyMcaIOHelper',
+    module  = Extension(name = 'PyMca5'+__dev_version__+'.PyMcaIO.PyMcaIOHelper',
                         sources = glob.glob('PyMca5/PyMcaIO/PyMcaIOHelper/*.c'),
                         define_macros = define_macros,
                         include_dirs = ['PyMca5/PyMcaIO/PyMcaIOHelper',
@@ -249,7 +268,7 @@ def build_Object3DCTools(ext_modules):
         #if WindowsSDK is not None:
         #    includes.append(WindowsSDK)
 
-    module  = Extension(name = 'PyMca5.Object3D.Object3DCTools',
+    module  = Extension(name = 'PyMca5'+__dev_version__+'.Object3D.Object3DCTools',
                         sources = glob.glob('PyMca5/Object3D/Object3DCTools/*.c'),
                         define_macros = define_macros,
                         libraries  = libraries,
@@ -276,7 +295,7 @@ def build_Object3DQhull(extensions):
         sources += glob.glob("third-party/qhull/src/*.c")
         include_dirs += ["third-party/qhull/src"]
 
-    module = Extension(name='PyMca5.Object3D.Object3DQhull',
+    module = Extension(name='PyMca5'+__dev_version__+'.Object3D.Object3DQhull',
                        sources=sources,
                        define_macros=define_macros,
                        libraries=libraries,
@@ -290,7 +309,7 @@ def build_Object3DQhull(extensions):
 def build_PyMcaSciPy(ext_modules):
     packages.append('PyMca5.PyMcaMath.PyMcaSciPy')
     packages.append('PyMca5.PyMcaMath.PyMcaSciPy.signal')
-    module = Extension(name = 'PyMca5.PyMcaMath.PyMcaSciPy.signal.mediantools',
+    module = Extension(name = 'PyMca5'+__dev_version__+'.PyMcaMath.PyMcaSciPy.signal.mediantools',
                        sources = glob.glob('PyMca5/PyMcaMath/PyMcaSciPy/signal/*.c'),
                        define_macros = [],
                        include_dirs = [numpy.get_include()])
@@ -313,7 +332,7 @@ def build_plotting_ctools(ext_modules):
         extra_compile_args = []
         extra_link_args = []
 
-    module = Extension(name="PyMca5.PyMcaGraph.ctools._ctools",
+    module = Extension(name="PyMca5"+__dev_version__+".PyMcaGraph.ctools._ctools",
                         sources=src,
                         include_dirs=[numpy.get_include(),
                                       os.path.join(basedir, "include")],
@@ -352,10 +371,10 @@ if (sys.version < '3.0') and LOCAL_OBJECT3D:
         for python_file in glob.glob('PyMca5/Object3D/*.py'):
             if python_file in ['setup.py', 'cx_setup.py']:
                 continue
-            m = "PyMca5.Object3D.%s" % os.path.basename(python_file)[:-3] 
+            m = "PyMca5"+__dev_version__+".Object3D.%s" % os.path.basename(python_file)[:-3] 
             py_modules.append(m)
         for python_file in glob.glob('PyMca5/Object3D/Object3DPlugins/*.py'):
-            m = "PyMca5.Object3D.Object3DPlugins.%s" %\
+            m = "PyMca5"+__dev_version__+".Object3D.Object3DPlugins.%s" %\
                                     os.path.basename(python_file)[:-3] 
             py_modules.append(m)
     except:
@@ -371,6 +390,7 @@ class smart_build_py(build_py):
         global PYMCA_DATA_DIR
         global PYMCA_DOC_DIR
         global PYMCA_INSTALL_DIR
+        global __dev_version__
         defaultPath = os.path.join('PyMca5','PyMcaData')
         if (PYMCA_DATA_DIR == defaultPath) or\
            (PYMCA_DOC_DIR == defaultPath):
@@ -387,7 +407,7 @@ class smart_build_py(build_py):
             #default, just make sure the complete path is there
             PYMCA_DOC_DIR = os.path.join(PYMCA_INSTALL_DIR,
                                           PYMCA_DOC_DIR)
-        target = os.path.join(self.build_lib, "PyMca5", "PyMcaDataDir.py")
+        target = os.path.join(self.build_lib, "PyMca5"+__dev_version__, "PyMcaDataDir.py")
         fid = open(target,'r')
         content = fid.readlines()
         fid.close()
@@ -411,6 +431,7 @@ class smart_install_data(install_data):
         global PYMCA_INSTALL_DIR
         global PYMCA_DATA_DIR
         global PYMCA_DOC_DIR
+        global __dev_version__
         #need to change self.install_dir to the library dir
         install_cmd = self.get_finalized_command('install')
         self.install_dir = getattr(install_cmd, 'install_lib')
@@ -418,7 +439,7 @@ class smart_install_data(install_data):
         print("PyMca to be installed in %s" %  self.install_dir)
 
         #cleanup old stuff if present
-        pymcaOld = os.path.join(PYMCA_INSTALL_DIR, "PyMca5", "Plugins1D")
+        pymcaOld = os.path.join(PYMCA_INSTALL_DIR, "PyMca5"+__dev_version__, "Plugins1D")
         if os.path.exists(pymcaOld):
             for f in glob.glob(os.path.join(pymcaOld,"*.py")):
                 print("Removing previously installed file %s" % f)
@@ -428,7 +449,7 @@ class smart_install_data(install_data):
                 os.remove(f)
             print("Removing previously installed directory %s" % pymcaOld)
             os.rmdir(pymcaOld)
-        pymcaOld = os.path.join(PYMCA_INSTALL_DIR, "PyMca5", "PyMca.py")
+        pymcaOld = os.path.join(PYMCA_INSTALL_DIR, "PyMca5"+__dev_version__, "PyMca.py")
         if os.path.exists(pymcaOld):
             print("Removing previously installed file %s" % pymcaOld)
             os.remove(pymcaOld)
@@ -444,11 +465,15 @@ if USE_SMART_INSTALL_SCRIPTS:
     from distutils.command.install_scripts import install_scripts
     class smart_install_scripts(install_scripts):
         def run (self):
+
             global PYMCA_SCRIPTS_DIR
+            global  __dev_version__
+
             #I prefer not to translate the python used during the build
             #process for the case of having an installation on a disk shared
             #by different machines and starting python from a shell script
             #that positions the environment
+
             from distutils import log
             from stat import ST_MODE
             install_cmd = self.get_finalized_command('install')
@@ -467,10 +492,12 @@ if USE_SMART_INSTALL_SCRIPTS:
             self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
             self.outfiles = []
             for filein in glob.glob('PyMca5/scripts/*'):
-                filedest = os.path.join(self.install_dir, os.path.basename(filein))
+                print " >>>>>>>>>>>>>>>>> " , filein
+                filedest = os.path.join(self.install_dir, os.path.basename(filein+__dev_version__))
                 if os.path.exists(filedest):
                     os.remove(filedest)
-                moddir = os.path.join(getattr(install_cmd,'install_lib'), "PyMca5")
+                moddir = os.path.join(getattr(install_cmd,'install_lib'), "PyMca5"+__dev_version__)
+                print " >>>>>>>>>>>>>>>>>>>>>>> " , filedest, moddir
                 if 0:
                     f = open(filein, 'r')
                     modfile = f.readline().replace("\n","")
@@ -522,6 +549,79 @@ if USE_SMART_INSTALL_SCRIPTS:
                         mode = ((os.stat(ffile)[ST_MODE]) | 365) & 4095
                         log.info("changing mode of %s to %o", ffile, mode)
                         os.chmod(ffile, mode)
+
+import difflib
+if USE_SMART_INSTALL_LIB:
+    from distutils.command.install_lib import install_lib
+    class smart_install_lib(install_lib):
+        def install (self):
+            if os.path.isdir(self.build_dir):
+                outfiles = self.copy_tree(self.build_dir, self.install_dir)
+            else:
+                self.warn("'%s' does not exist -- no Python modules to install" %
+                          self.build_dir)
+                return
+
+            for file in outfiles:
+
+                if file[-3:]==".py":
+                    sold = open(file,"r").read()
+                    s=string.replace(sold,"PyMca5", "PyMca5"+__dev_version__)
+                    open(file,"w").write(s)
+                    print "   BBBBBBBBB ",  file
+                else:
+                    print "   AAAAAAAAAAAAA ",  file
+
+
+
+            return outfiles
+
+
+if USE_SMART_INSTALL_SCRIPTS:
+    from distutils.command.install_scripts import install_scripts
+    class smart_install_scripts(install_scripts):
+        def run (self):
+            from stat import ST_MODE
+
+            install_cmd = self.get_finalized_command('install')
+            self.install_dir = getattr(install_cmd, 'install_scripts')
+            self.install_lib_dir = getattr(install_cmd, 'install_lib')
+
+            self.outfiles = []
+            script_files = glob.glob('PyMca5/scripts/*')
+
+            for filein in script_files:
+                if filein in glob.glob('scripts/*~'): continue
+
+                print "INSTALLO ", filein
+
+                if not os.path.exists(self.install_dir):
+                    os.makedirs(self.install_dir)
+
+                filedest = os.path.join(self.install_dir, os.path.basename(filein+__dev_version__))
+
+                if os.path.exists(filedest):
+                    os.remove(filedest)
+
+                text = open(filein, 'r').read()
+                text=string.replace(text,"import PyMca5", "import PyMca5"+ __dev_version__  )
+                text=string.replace(text,"python", sys.executable)
+
+                f=open(filedest, 'w')
+                f.write(text)
+                f.close()
+                self.outfiles.append(filedest)
+
+            if os.name == 'posix':
+                # Set the executable bits (owner, group, and world) on
+                # all the scripts we just installed.
+                for file in self.get_outputs():
+                    if self.dry_run:
+                        pass
+                    else:
+                        mode = ((os.stat(file)[ST_MODE]) | 0555) & 07777
+                        os.chmod(file, mode)
+
 
 # man pages handling
 def abspath(*path):
@@ -635,6 +735,11 @@ if USE_SMART_INSTALL_SCRIPTS:
     # typical use of user without superuser privileges
     cmdclass['install_scripts'] = smart_install_scripts
 
+if USE_SMART_INSTALL_LIB:
+    # typical use of user without superuser privileges
+    cmdclass['install_lib'] = smart_install_lib
+
+
 if os.name == "posix":
     cmdclass['install'] = install
     cmdclass['install_man'] = install_man
@@ -677,7 +782,19 @@ if sphinx:
             sys.path.pop(0)
     cmdclass['build_doc'] = build_doc
 
-distrib = setup(name="PyMca5",
+
+packages_orig=packages
+packages = [ string.replace(token, 'PyMca5','PyMca5'+__dev_version__) for token in packages_orig]
+package_dir = {'PyMca5alex.Object3D':'PyMca5.Object3D'}
+package_dir = {}
+for key, value in zip( packages,packages_orig ):
+    package_dir[key]= os.path.join( *(string.split(value,".")))
+
+
+for tok in packages:
+    print tok,"     " ,  package_dir[tok]
+
+distrib = setup(name="PyMca5"+__dev_version__,
                 version= __version__,
                 description = description,
                 author = "V. Armando Sole",
@@ -690,7 +807,7 @@ distrib = setup(name="PyMca5",
                 ext_modules = ext_modules,
                 data_files = data_files,
 ##                package_data = package_data,
-##                package_dir = {'':'PyMca', 'PyMca.tests':'tests'},
+                package_dir = package_dir, 
                 cmdclass = cmdclass,
                 scripts=script_files,
                 py_modules=py_modules,
